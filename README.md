@@ -1,4 +1,4 @@
-# Plateforme SONGRE
+# Plateforme SONGRER
 
 SONGRER est une plateforme bilatérale sécurisée et temps réel conçue pour l'aide, le signalement et la protection des victimes de Violences Basées sur le Genre (VBG). 
 
