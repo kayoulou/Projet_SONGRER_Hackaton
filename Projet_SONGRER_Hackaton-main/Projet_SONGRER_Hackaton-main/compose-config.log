@@ -1,0 +1,67 @@
+name: projet_songrer_hackaton-main
+services:
+  api:
+    build:
+      context: C:\Users\HP\Documents\Projet_Songrer\Projet_SONGRER_Hackaton-main\Projet_SONGRER_Hackaton-main\songrer-api
+      dockerfile: Dockerfile
+    command:
+      - sh
+      - -c
+      - npx prisma migrate deploy && npx prisma db seed && node src/server.js
+    container_name: songrer-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: true
+    environment:
+      ADMIN_EMAIL: admin@songrer.org
+      ADMIN_PASSWORD: replace_with_a_strong_password
+      CORS_ORIGIN: http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:8081,http://localhost:19006,http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:3002
+      DATABASE_URL: postgresql://songrer:songrer_password@postgres:5432/songrer?schema=public
+      GEMINI_API_KEY: ""
+      GEMINI_MODEL: gemini-2.5-flash-lite
+      JWT_SECRET: replace_with_a_long_random_secret
+      LLM_PROVIDER: gemini
+      NODE_ENV: production
+      PORT: "4000"
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 4000
+        published: "4000"
+        protocol: tcp
+    restart: unless-stopped
+  postgres:
+    container_name: songrer-postgres
+    environment:
+      POSTGRES_DB: songrer
+      POSTGRES_PASSWORD: songrer_password
+      POSTGRES_USER: songrer
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U songrer -d songrer
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5432"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: songrer_postgres_data
+        target: /var/lib/postgresql/data
+        volume: {}
+networks:
+  default:
+    name: projet_songrer_hackaton-main_default
+volumes:
+  songrer_postgres_data:
+    name: projet_songrer_hackaton-main_songrer_postgres_data
